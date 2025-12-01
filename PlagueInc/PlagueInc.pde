@@ -26,22 +26,26 @@ ArrayList<Plane> planes;
 boolean cheatCodeOn;
 PImage victoryImg;
 PImage defeatImg;
+Graph graph;
+boolean showGraph = false;
+AdvancedMathGraph advancedGraph;
+boolean showAdvancedGraph = false;
 
 void citySetup() {
   ArrayList<String> adjacent = new ArrayList<String>();
   adjacent.add("Opelucid City");
   City League = new City("Pokemon League", 1000000, adjacent, true, false, 730, 60);
   cities.add(League);
-  
+
   //Nuvema, Accumula, and Black (City) are not mistakenly ordered like so.
   //It's to fix to a bug with the overlap of
   //updating dead/disease count with adjacent cities' white circles
-  
+
   ArrayList<String> adjacent13 = new ArrayList<String>();
   adjacent13.add("Accumula Town");
   City Nuvema = new City("Nuvema Town", 100000, adjacent13, true, true, 1100, 660);
   cities.add(Nuvema);
-  
+
   ArrayList<String> adjacent12 = new ArrayList<String>();
   adjacent12.add("Straiton City");
   adjacent12.add("Nuvema Town");
@@ -91,7 +95,7 @@ void citySetup() {
   adjacent8.add("Castelia City");
   City Nimbasa = new City("Nimbasa City", 1000000, adjacent8, true, false, 610, 425);
   cities.add(Nimbasa);
-  
+
   ArrayList<String> adjacent9 = new ArrayList<String>();
   adjacent9.add("Nimbasa City");
   adjacent9.add("Nacrene City");
@@ -103,7 +107,7 @@ void citySetup() {
   adjacent10.add("Straiton City");
   City Nacrene = new City("Nacrene City", 500000, adjacent10, false, true, 920, 500);
   cities.add(Nacrene);
-  
+
   ArrayList<String> adjacent6 = new ArrayList<String>();
   adjacent6.add("Undella Town");
   adjacent6.add("Nimbasa City");
@@ -154,11 +158,11 @@ void killDisease(City c) {
 
 void customize(DropdownList ddl) {
   // a convenience function to customize a DropdownList
-  ddl.setBackgroundColor(color(190)); 
+  ddl.setBackgroundColor(color(190));
   ddl.setItemHeight(20);
   ddl.setBarHeight(30);
   ddl.setSize(200, 100);
-  ddl.setColorBackground(color(60)); 
+  ddl.setColorBackground(color(60));
   ddl.setColorActive(color(255, 128));
 }
 
@@ -256,6 +260,20 @@ void Sell() {
     fill(0, 0, 0);
     textSize(10);
     text("You cannot sell a mutation that hasn't been bought yet.", 1220, 500, 150, 75);
+  }
+}
+
+void Graphic() {
+  showGraph = !showGraph;
+  if (showGraph) {
+    showAdvancedGraph = false;
+  }
+}
+
+void Advanced() {
+  showAdvancedGraph = !showAdvancedGraph;
+  if (showAdvancedGraph) {
+    showGraph = false;
   }
 }
 
@@ -417,16 +435,31 @@ void mousePressed() {
   if (pow((mouseX - 605), 2) + pow((mouseY - 325), 2) <= 225) {
     cheatCodeOn = true;
   }
+
+  // Detectar clic en gráfica 3D para rotar
+  if (showAdvancedGraph && mouseX >= 50 && mouseX <= 850 && mouseY >= 50 && mouseY <= 700) {
+    advancedGraph.handleMousePressed(mouseX, mouseY);
+  }
+}
+
+void mouseDragged() {
+  if (showAdvancedGraph) {
+    advancedGraph.handleMouseDragged(mouseX, mouseY);
+  }
 }
 
 void mouseReleased() {
   cheatCodeOn = false;
+
+  if (showAdvancedGraph) {
+    advancedGraph.handleMouseReleased();
+  }
 }
 
 
 
 void setup() {
-  //this segment of code from StackOverflow prevents the annoying 
+  //this segment of code from StackOverflow prevents the annoying
   //warning messages from showing up in the processing console
   System.setErr(new PrintStream(new OutputStream() {
     public void write(int b) {
@@ -450,6 +483,8 @@ void setup() {
   pointRate = 1;
   news = new ArrayList();
   planes = new ArrayList<Plane>();
+  graph = new Graph();
+  advancedGraph = new AdvancedMathGraph();
 
   textSize(16);
   fill(0, 0, 0);
@@ -487,6 +522,8 @@ void setup() {
 
   cp5.addButton("Confirm").setValue(0).setPosition(1215, 680).setSize(70, 40);
   cp5.addButton("Sell").setValue(0).setPosition(1300, 680).setSize(70, 40);
+  cp5.addButton("Graphic").setValue(0).setPosition(1215, 730).setSize(75, 40);
+  cp5.addButton("Advanced").setValue(0).setPosition(1295, 730).setSize(75, 40);
 
   cities.get(0).diseased = 1;
 }
@@ -607,7 +644,18 @@ void draw() {
   if (cheatCodeOn) {
     points+=1;
   }
-  
+
+  graph.addData(totalDiseased, totalDead);
+  advancedGraph.addData(totalDiseased, totalDead);
+
+  if (showGraph) {
+    graph.display(50, 100, 600, 400);
+  }
+
+  if (showAdvancedGraph) {
+    advancedGraph.display(50, 50, 800, 650);
+  }
+
   if (totalDead == totalPop){
     size(1440,785);
     image(victoryImg, 0, 0);
@@ -616,6 +664,8 @@ void draw() {
     dSell.remove();
     cp5.getController("Confirm").remove();
     cp5.getController("Sell").remove();
+    cp5.getController("Graphic").remove();
+    cp5.getController("Advanced").remove();
     noLoop();
   }
   if (cure.developed() >= 100 || totalDiseased == 0){
@@ -626,6 +676,8 @@ void draw() {
     dSell.remove();
     cp5.getController("Confirm").remove();
     cp5.getController("Sell").remove();
+    cp5.getController("Graphic").remove();
+    cp5.getController("Advanced").remove();
     noLoop();
   }
 }
