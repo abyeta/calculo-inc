@@ -1,11 +1,9 @@
-import controlP5.*; //<>//
-
-import java.awt.*; //<>// //<>// //<>// //<>//
-import java.awt.event.*;
-import javax.swing.*;
-import controlP5.*;
-import java.io.PrintStream;
-import java.io.OutputStream;
+import controlP5.*; //<>// //<>// //<>//
+import processing.core.PApplet;
+import processing.core.PVector;
+import java.util.ArrayList;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 
 ControlP5 cp5;
 DropdownList d1, d2, dSell;
@@ -28,18 +26,15 @@ PImage victoryImg;
 PImage defeatImg;
 Graph graph;
 boolean showGraph = false;
-AdvancedMathGraph advancedGraph;
-boolean showAdvancedGraph = false;
+AdvancedWindow advancedWindow;
+boolean showAdvancedWindow = false;
+boolean advancedWindowInitialized = false;
 
 void citySetup() {
   ArrayList<String> adjacent = new ArrayList<String>();
   adjacent.add("Opelucid City");
   City League = new City("Pokemon League", 1000000, adjacent, true, false, 730, 60);
   cities.add(League);
-
-  //Nuvema, Accumula, and Black (City) are not mistakenly ordered like so.
-  //It's to fix to a bug with the overlap of
-  //updating dead/disease count with adjacent cities' white circles
 
   ArrayList<String> adjacent13 = new ArrayList<String>();
   adjacent13.add("Accumula Town");
@@ -157,7 +152,6 @@ void killDisease(City c) {
 }
 
 void customize(DropdownList ddl) {
-  // a convenience function to customize a DropdownList
   ddl.setBackgroundColor(color(190));
   ddl.setItemHeight(20);
   ddl.setBarHeight(30);
@@ -266,13 +260,50 @@ void Sell() {
 void Graphic() {
   showGraph = !showGraph;
   if (showGraph) {
-    showAdvancedGraph = false;
+    showAdvancedWindow = false;
+    if (advancedWindow != null) {
+      advancedWindow.exit();
+      advancedWindow = null;
+    }
   }
 }
 
 void Advanced() {
-  showAdvancedGraph = !showAdvancedGraph;
-  if (showAdvancedGraph) {
+  showAdvancedWindow = !showAdvancedWindow;
+  
+  if (showAdvancedWindow && advancedWindow == null) {
+    // Crear las listas para los datos históricos
+    ArrayList<Float> infectedHist = new ArrayList<Float>();
+    ArrayList<Float> deadHist = new ArrayList<Float>();
+    
+    // Crear la ventana avanzada
+    advancedWindow = new AdvancedWindow(infectedHist, deadHist);
+    
+    // Inicializar la ventana
+    String[] args = {"AdvancedWindow"};
+    PApplet.runSketch(args, advancedWindow);
+    
+    // Posicionar la ventana si es posible
+    try {
+      advancedWindow.getSurface().setLocation(1450, 0);
+    } catch (Exception e) {
+      // Ignorar si no se puede posicionar
+      println("No se pudo posicionar la ventana: " + e.getMessage());
+    }
+    
+    advancedWindowInitialized = true;
+  } else if (!showAdvancedWindow && advancedWindow != null) {
+    // En lugar de llamar a exit(), simplemente ocultar la ventana
+    try {
+      advancedWindow.getSurface().setVisible(false);
+      // No cerrar completamente, solo ocultar
+      // advancedWindow = null; // No establecer a null para mantener la referencia
+    } catch (Exception e) {
+      println("Error al ocultar ventana: " + e.getMessage());
+    }
+  }
+  
+  if (showAdvancedWindow) {
     showGraph = false;
   }
 }
@@ -345,7 +376,6 @@ void putStatsText(Mutation mut, String action) {
   String stats = "";
   stats+="Infectivity: "+symbol+mut.infIncrement()+"  ";
   stats+="Severity: "+symbol+mut.sevIncrement()+"  ";
-  //spacing for visual purposes
   stats+="Lethality: "+symbol+mut.letIncrement()+"  ";
   if (mut.letIncrement() < 10) {
     stats+= " ";
@@ -382,10 +412,7 @@ String printStringArray(ArrayList<String> ary) {
 }
 
 void controlEvent(ControlEvent theEvent) {
-  //this skeleton code is credited to one of the examples on documentation
-  //documentation stated this first if statement is necessary to not throw an error
   if (theEvent.isGroup()) {
-    //from what I've seen, this if case is never activated in our code
   } else if (theEvent.isController()) {
     if (theEvent.getController() == d1) {
       fill(205);
@@ -416,8 +443,6 @@ void controlEvent(ControlEvent theEvent) {
 
 void mousePressed() {
   for (City c : cities) {
-    //pops bubble if bubble is above the city and adds 2 points
-    //this if statement calculates if mouse coords is within the bubble's hitbox
     if ((Math.pow((mouseX - c.x), 2) + Math.pow((mouseY - c.y), 2) < 225) && (c.hasBubble || c.hasSporadicBubble)) {
       if (c.hasBubble) {
         fill(255, 255, 255);
@@ -428,54 +453,32 @@ void mousePressed() {
         c.hasSporadicBubble = false;
       }
       ellipse(c.x, c.y, 35, 35);
-      //when bubblePopped, c.hasBubble is set to false b/c of updateColor method within City class
       points+= 2;
     }
   }
   if (pow((mouseX - 605), 2) + pow((mouseY - 325), 2) <= 225) {
     cheatCodeOn = true;
   }
-
-  // Detectar clic en gráfica 3D para rotar
-  if (showAdvancedGraph && mouseX >= 50 && mouseX <= 850 && mouseY >= 50 && mouseY <= 700) {
-    advancedGraph.handleMousePressed(mouseX, mouseY);
-  }
 }
 
 void mouseDragged() {
-  if (showAdvancedGraph) {
-    advancedGraph.handleMouseDragged(mouseX, mouseY);
-  }
+  // El manejo del mouse para la ventana 3D ahora está dentro de AdvancedWindow
 }
 
 void mouseReleased() {
   cheatCodeOn = false;
-
-  if (showAdvancedGraph) {
-    advancedGraph.handleMouseReleased();
-  }
 }
 
-
-
 void setup() {
-  //this segment of code from StackOverflow prevents the annoying
-  //warning messages from showing up in the processing console
-  System.setErr(new PrintStream(new OutputStream() {
-    public void write(int b) {
-    }
-  }
-  ));
-  System.err.println("WARNING: Controller with name \"/<Symptom>\" already exists. overwriting reference of existing controller."); // will not be printed
-  System.err.println("WARNING: Controller with name \"/<Transmission>\" already exists. overwriting reference of existing controller."); // will not be printed
 
-  size(1440, 785);
+  size(1440, 785, P3D);
   img = loadImage("map.png");
   image(img, 0, 0);
   victoryImg = loadImage("victory.png");
   defeatImg = loadImage("defeat.png");
-
+  
   citySetup();
+ 
   drawCities();
   disease = new Disease();
   cure = new Cure();
@@ -484,7 +487,6 @@ void setup() {
   news = new ArrayList();
   planes = new ArrayList<Plane>();
   graph = new Graph();
-  advancedGraph = new AdvancedMathGraph();
 
   textSize(16);
   fill(0, 0, 0);
@@ -531,19 +533,18 @@ void setup() {
 void draw() {
   totalDead = 0;
   totalDiseased = 0;
-
   size(1440, 785);
   image(img, 0, 0);
+  
   for (City c : cities) {
     fill(0, 0, 0);
-    c.drawRoutes();
     fill(255, 255, 255);
     c.drawAirports();
     c.writeNames();
-    //c.drawDocks();
   }
-  drawCities();
+    drawCities();
 
+  
   int numCitiesInfected = 0;
   for (City c : cities) {
     if (c.diseased > 0){
@@ -610,7 +611,6 @@ void draw() {
 
   disease.updateAccessibleMutations();
 
-  //displays total % infected and total % dead
   fill(205);
   rect(1220, 150, 100, 22);
   fill(0, 0, 0);
@@ -624,7 +624,7 @@ void draw() {
   fill(0, 0, 0);
   percentDead = totalDead * 100.0 / (totalPop);
   text("Dead: " + (int)percentDead + "%", 1220, 200);
-  //calculates and displays cure %
+  
   if (totalDead >= 10000 ) {
     if (cure.developed() <= 100) {
       double deathIndex = -0.01 * Math.pow(percentDead - 50, 2.0) + 25;
@@ -646,14 +646,14 @@ void draw() {
   }
 
   graph.addData(totalDiseased, totalDead);
-  advancedGraph.addData(totalDiseased, totalDead);
 
   if (showGraph) {
     graph.display(50, 100, 600, 400);
   }
 
-  if (showAdvancedGraph) {
-    advancedGraph.display(50, 50, 800, 650);
+  // Enviar datos a la ventana avanzada si está abierta
+  if (showAdvancedWindow && advancedWindow != null) {
+    advancedWindow.addData(totalDiseased, totalDead);
   }
 
   if (totalDead == totalPop){
