@@ -1,4 +1,4 @@
-// Graph.pde - Estilo GeoGebra
+// Graph.pde - Estilo GeoGebra MEJORADO
 class Graph {
   ArrayList<Float> infectedHistory;
   ArrayList<Float> deadHistory;
@@ -43,19 +43,19 @@ class Graph {
     int totalPop = 10000000;
 
     // === FONDO ESTILO GEOGEBRA ===
-    fill(250, 250, 255);
+    fill(252, 252, 255);
     noStroke();
     rect(x, y, w, h);
 
-    // Borde
-    stroke(100);
-    strokeWeight(2);
+    // Borde más oscuro y grueso
+    stroke(80, 80, 90);
+    strokeWeight(3);
     noFill();
     rect(x, y, w, h);
 
     // === GRILLA ESTILO GEOGEBRA ===
-    stroke(220, 220, 230);
-    strokeWeight(1);
+    stroke(215, 215, 225);
+    strokeWeight(1.5);
 
     // Líneas verticales
     for (int i = 0; i <= 10; i++) {
@@ -71,7 +71,7 @@ class Graph {
 
     // === ÁREA BAJO LA CURVA (INTEGRAL) ===
     // Infectados
-    fill(255, 50, 50, 80);
+    fill(255, 70, 70, 100);  // Más opaco
     noStroke();
     beginShape();
     vertex(x, y + h);
@@ -87,7 +87,7 @@ class Graph {
     endShape(CLOSE);
 
     // Muertos
-    fill(50, 50, 50, 80);
+    fill(60, 60, 60, 100);  // Más opaco
     beginShape();
     vertex(x, y + h);
     for (int i = 0; i < deadHistory.size(); i++) {
@@ -102,15 +102,15 @@ class Graph {
     endShape(CLOSE);
 
     // === EJES PRINCIPALES ===
-    stroke(80);
-    strokeWeight(2);
+    stroke(60, 60, 70);
+    strokeWeight(3);  // Más grueso
     line(x, y + h, x + w, y + h); // eje X
     line(x, y, x, y + h); // eje Y
 
-    // === CURVAS PRINCIPALES ===
+    // === CURVAS PRINCIPALES MÁS GRUESAS ===
     // Infectados (rojo)
-    stroke(220, 20, 20);
-    strokeWeight(3);
+    stroke(230, 30, 30);
+    strokeWeight(4);  // Más grueso
     noFill();
     beginShape();
     for (int i = 0; i < infectedHistory.size(); i++) {
@@ -121,8 +121,8 @@ class Graph {
     endShape();
 
     // Muertos (negro)
-    stroke(20, 20, 20);
-    strokeWeight(3);
+    stroke(30, 30, 30);
+    strokeWeight(4);  // Más grueso
     beginShape();
     for (int i = 0; i < deadHistory.size(); i++) {
       float px = map(i, 0, maxPoints, x, x + w);
@@ -131,81 +131,84 @@ class Graph {
     }
     endShape();
 
-    // === TÍTULO ===
-    fill(0);
-    textSize(16);
+    // === TÍTULO MÁS GRANDE ===
+    fill(20, 30, 40);
+    textSize(20);  // Aumentado de 16 a 20
     textAlign(CENTER);
-    text("Evolución de la Enfermedad", x + w/2, y - 10);
+    text("Evolución de la Enfermedad", x + w/2, y - 12);
 
-    // === LABELS DE EJES ===
-    textSize(12);
-    text("Tiempo (frames)", x + w/2, y + h + 25);
+    // === LABELS DE EJES MÁS GRANDES ===
+    textSize(15);  // Aumentado de 12 a 15
+    fill(40, 50, 60);
+    text("Tiempo (frames)", x + w/2, y + h + 30);
 
     pushMatrix();
-    translate(x - 35, y + h/2);
+    translate(x - 40, y + h/2);
     rotate(-PI/2);
     text("Población", 0, 0);
     popMatrix();
 
-    // === ESCALA EJE Y ===
+    // === ESCALA EJE Y MÁS GRANDE ===
     textAlign(RIGHT);
-    textSize(10);
+    textSize(13);  // Aumentado de 10 a 13
+    fill(40, 50, 60);
     for (int i = 0; i <= 4; i++) {
       float labelValue = (totalPop / 4.0) * i;
       float labelY = y + h - (h / 4.0) * i;
       String label = nf(labelValue / 1000000.0, 0, 1) + "M";
-      fill(60);
-      text(label, x - 5, labelY + 4);
+      text(label, x - 8, labelY + 5);
     }
 
-    // === PANEL DE INFORMACIÓN (estilo GeoGebra) ===
+    // === PANEL DE INFORMACIÓN MÁS GRANDE Y VISIBLE ===
     // Fondo panel
-    fill(245, 245, 250, 230);
-    stroke(100);
-    strokeWeight(1);
-    rect(x + 10, y + 10, 180, 120);
+    fill(248, 248, 253, 240);
+    stroke(90, 90, 100);
+    strokeWeight(2);
+    rect(x + 12, y + 12, 220, 145, 6);  // Más grande
 
     // Información
-    fill(0);
+    fill(20, 30, 40);
     textAlign(LEFT);
-    textSize(11);
+    textSize(15);  // Aumentado de 11 a 15
 
     float infectedIntegral = calculateIntegral(infectedHistory);
     float deadIntegral = calculateIntegral(deadHistory);
     float infectedDerivative = calculateDerivative(infectedHistory);
     float deadDerivative = calculateDerivative(deadHistory);
 
-    text("ANÁLISIS MATEMÁTICO", x + 20, y + 28);
+    text("ANÁLISIS MATEMÁTICO", x + 24, y + 32);
 
-    textSize(10);
-    fill(220, 20, 20);
-    text("● f(t) = Infectados", x + 20, y + 45);
-    fill(0);
+    textSize(13);  // Aumentado de 10 a 13
+    fill(230, 30, 30);
+    text("● f(t) = Infectados", x + 24, y + 52);
+    fill(20, 30, 40);
     String infIntStr = nf(infectedIntegral / 1000000.0, 0, 2) + "M";
-    text("  ∫ f(t)dt = " + infIntStr, x + 20, y + 60);
-    text("  f'(t) = " + nf(infectedDerivative, 0, 0) + "/frame", x + 20, y + 73);
+    text("  ∫ f(t)dt = " + infIntStr, x + 24, y + 70);
+    text("  f'(t) = " + nf(infectedDerivative, 0, 0) + "/frame", x + 24, y + 86);
 
-    fill(20, 20, 20);
-    text("● g(t) = Muertos", x + 20, y + 90);
-    fill(0);
+    fill(30, 30, 30);
+    text("● g(t) = Muertos", x + 24, y + 107);
+    fill(20, 30, 40);
     String deadIntStr = nf(deadIntegral / 1000000.0, 0, 2) + "M";
-    text("  ∫ g(t)dt = " + deadIntStr, x + 20, y + 105);
-    text("  g'(t) = " + nf(deadDerivative, 0, 0) + "/frame", x + 20, y + 118);
+    text("  ∫ g(t)dt = " + deadIntStr, x + 24, y + 125);
+    text("  g'(t) = " + nf(deadDerivative, 0, 0) + "/frame", x + 24, y + 141);
 
-    // === LEYENDA (esquina superior derecha) ===
-    fill(255, 255, 255, 200);
-    rect(x + w - 130, y + 10, 120, 50);
+    // === LEYENDA MÁS GRANDE (esquina superior derecha) ===
+    fill(255, 255, 255, 230);
+    stroke(90, 90, 100);
+    strokeWeight(2);
+    rect(x + w - 150, y + 12, 138, 65, 6);  // Más grande
 
-    strokeWeight(3);
-    stroke(220, 20, 20);
-    line(x + w - 120, y + 25, x + w - 95, y + 25);
-    fill(0);
+    strokeWeight(5);  // Líneas más gruesas
+    stroke(230, 30, 30);
+    line(x + w - 140, y + 30, x + w - 110, y + 30);
+    fill(20, 30, 40);
     textAlign(LEFT);
-    textSize(11);
-    text("Infectados", x + w - 90, y + 28);
+    textSize(14);  // Aumentado de 11 a 14
+    text("Infectados", x + w - 105, y + 35);
 
-    stroke(20, 20, 20);
-    line(x + w - 120, y + 45, x + w - 95, y + 45);
-    text("Muertos", x + w - 90, y + 48);
+    stroke(30, 30, 30);
+    line(x + w - 140, y + 55, x + w - 110, y + 55);
+    text("Muertos", x + w - 105, y + 60);
   }
 }

@@ -121,12 +121,16 @@ void citySetup() {
 }
 
 void drawCities() {
-  fill(255, 255, 255);
   for (int i=0; i<cities.size(); i++) {
+    stroke(0);
+    strokeWeight(3);
+
+    fill(255, 255, 255);
+
     ellipse(cities.get(i).x, cities.get(i).y, 65, 65);
   }
+  noStroke();  // Resetear para no afectar otros dibujos
 }
-
 void spreadDisease(City c) {
   if (c.diseased > 0) {
     double rate = (disease.infectivity) * ((c.population-c.diseased-c.dead) / (c.population * 1.0)) * c.diseased;
@@ -158,6 +162,13 @@ void customize(DropdownList ddl) {
   ddl.setSize(200, 100);
   ddl.setColorBackground(color(60));
   ddl.setColorActive(color(255, 128));
+  ddl.setColorForeground(color(80));
+  ddl.setColorLabel(color(255));
+  ddl.setColorValue(color(255));
+
+  ddl.getCaptionLabel().getStyle().marginTop = 3;
+  ddl.getCaptionLabel().getStyle().marginLeft = 3;
+  ddl.getValueLabel().getStyle().marginTop = 3;
 }
 
 void Confirm() {
@@ -258,54 +269,74 @@ void Sell() {
 }
 
 void Graphic() {
+  println("Botón Graphic presionado");
+
   showGraph = !showGraph;
+
   if (showGraph) {
     showAdvancedWindow = false;
     if (advancedWindow != null) {
-      advancedWindow.exit();
-      advancedWindow = null;
+      try {
+        advancedWindow.getSurface().setVisible(false);
+      } catch (Exception e) {
+        println("Error ocultando ventana avanzada: " + e.getMessage());
+      }
     }
   }
+
+  println("showGraph = " + showGraph);
 }
 
+
 void Advanced() {
+  println("Botón Advanced presionado");
+
   showAdvancedWindow = !showAdvancedWindow;
-  
+
+  if (showAdvancedWindow) {
+    showGraph = false;
+  }
+
   if (showAdvancedWindow && advancedWindow == null) {
-    // Crear las listas para los datos históricos
+    println("Creando ventana avanzada...");
+
     ArrayList<Float> infectedHist = new ArrayList<Float>();
     ArrayList<Float> deadHist = new ArrayList<Float>();
-    
-    // Crear la ventana avanzada
+
     advancedWindow = new AdvancedWindow(infectedHist, deadHist);
-    
-    // Inicializar la ventana
+
     String[] args = {"AdvancedWindow"};
     PApplet.runSketch(args, advancedWindow);
-    
-    // Posicionar la ventana si es posible
+
     try {
+      // Pequeño delay para que la ventana se cree correctamente
+      Thread.sleep(100);
       advancedWindow.getSurface().setLocation(1450, 0);
+      println("Ventana avanzada creada y posicionada");
     } catch (Exception e) {
-      // Ignorar si no se puede posicionar
-      println("No se pudo posicionar la ventana: " + e.getMessage());
+      println("Error: " + e.getMessage());
     }
-    
+
     advancedWindowInitialized = true;
-  } else if (!showAdvancedWindow && advancedWindow != null) {
-    // En lugar de llamar a exit(), simplemente ocultar la ventana
+  }
+  else if (!showAdvancedWindow && advancedWindow != null) {
+    println("Ocultando ventana avanzada...");
     try {
       advancedWindow.getSurface().setVisible(false);
-      // No cerrar completamente, solo ocultar
-      // advancedWindow = null; // No establecer a null para mantener la referencia
     } catch (Exception e) {
       println("Error al ocultar ventana: " + e.getMessage());
     }
   }
-  
-  if (showAdvancedWindow) {
-    showGraph = false;
+  else if (showAdvancedWindow && advancedWindow != null) {
+    println("Mostrando ventana avanzada existente...");
+    try {
+      advancedWindow.getSurface().setVisible(true);
+    } catch (Exception e) {
+      println("Error al mostrar ventana: " + e.getMessage());
+    }
   }
+
+  println("showAdvancedWindow = " + showAdvancedWindow);
 }
 
 void updateDiseaseLabels() {
@@ -476,9 +507,9 @@ void setup() {
   image(img, 0, 0);
   victoryImg = loadImage("victory.png");
   defeatImg = loadImage("defeat.png");
-  
+
   citySetup();
- 
+
   drawCities();
   disease = new Disease();
   cure = new Cure();
@@ -522,10 +553,52 @@ void setup() {
   customize(dSell);
   dSell.getCaptionLabel().set("<Current Mutations>");
 
-  cp5.addButton("Confirm").setValue(0).setPosition(1215, 680).setSize(70, 40);
-  cp5.addButton("Sell").setValue(0).setPosition(1300, 680).setSize(70, 40);
-  cp5.addButton("Graphic").setValue(0).setPosition(1215, 730).setSize(75, 40);
-  cp5.addButton("Advanced").setValue(0).setPosition(1295, 730).setSize(75, 40);
+  // ✅ Botones con colores azules personalizados
+  cp5.addButton("Confirm")
+     .setValue(0)
+     .setPosition(1215, 680)
+     .setSize(70, 40)
+     .setColorBackground(color(50, 100, 200))      // Azul normal
+     .setColorForeground(color(70, 120, 220))      // Azul hover
+     .setColorActive(color(30, 80, 180))           // Azul presionado
+     .setColorLabel(color(255));                    // Texto blanco
+
+  cp5.addButton("Sell")
+     .setValue(0)
+     .setPosition(1300, 680)
+     .setSize(70, 40)
+     .setColorBackground(color(50, 100, 200))
+     .setColorForeground(color(70, 120, 220))
+     .setColorActive(color(30, 80, 180))
+     .setColorLabel(color(255));
+
+  cp5.addButton("Graphic")
+     .setValue(0)
+     .setPosition(1215, 730)
+     .setSize(75, 40)
+     .setColorBackground(color(50, 100, 200))
+     .setColorForeground(color(70, 120, 220))
+     .setColorActive(color(30, 80, 180))
+     .setColorLabel(color(255));
+
+  cp5.addButton("Advanced")
+     .setValue(0)
+     .setPosition(1295, 730)
+     .setSize(75, 40)
+     .setColorBackground(color(50, 100, 200))
+     .setColorForeground(color(70, 120, 220))
+     .setColorActive(color(30, 80, 180))
+     .setColorLabel(color(255));
+
+  // ✅ Solo aplicar colores a los dropdowns, NO a los botones
+  d1.setColorLabel(color(255));
+  d1.setColorValue(color(255));
+
+  d2.setColorLabel(color(255));
+  d2.setColorValue(color(255));
+
+  dSell.setColorLabel(color(255));
+  dSell.setColorValue(color(255));
 
   cities.get(0).diseased = 1;
 }
@@ -533,18 +606,16 @@ void setup() {
 void draw() {
   totalDead = 0;
   totalDiseased = 0;
-  size(1440, 785);
   image(img, 0, 0);
-  
+
   for (City c : cities) {
     fill(0, 0, 0);
     fill(255, 255, 255);
     c.drawAirports();
     c.writeNames();
   }
-    drawCities();
+  drawCities();
 
-  
   int numCitiesInfected = 0;
   for (City c : cities) {
     if (c.diseased > 0){
@@ -624,7 +695,7 @@ void draw() {
   fill(0, 0, 0);
   percentDead = totalDead * 100.0 / (totalPop);
   text("Dead: " + (int)percentDead + "%", 1220, 200);
-  
+
   if (totalDead >= 10000 ) {
     if (cure.developed() <= 100) {
       double deathIndex = -0.01 * Math.pow(percentDead - 50, 2.0) + 25;
@@ -647,18 +718,35 @@ void draw() {
 
   graph.addData(totalDiseased, totalDead);
 
+  // ✅ SOLUCIÓN FINAL: Gráfico 2D en ventana P3D
   if (showGraph) {
+    hint(DISABLE_DEPTH_TEST);  // Desactivar depth buffer 3D
+    camera();                   // Resetear cámara a vista 2D ortográfica
+
     graph.display(50, 100, 600, 400);
+
+    hint(ENABLE_DEPTH_TEST);   // Reactivar depth buffer 3D
   }
 
-  // Enviar datos a la ventana avanzada si está abierta
+  // Enviar datos solo si la ventana existe y está visible
   if (showAdvancedWindow && advancedWindow != null) {
-    advancedWindow.addData(totalDiseased, totalDead);
+    try {
+      advancedWindow.addData(totalDiseased, totalDead);
+    } catch (Exception e) {
+      // Ignorar si la ventana no está lista
+    }
   }
 
+  // Cerrar ventana Advanced al ganar
   if (totalDead == totalPop){
-    size(1440,785);
     image(victoryImg, 0, 0);
+
+    if (advancedWindow != null) {
+      try {
+        advancedWindow.getSurface().setVisible(false);
+      } catch (Exception e) {}
+    }
+
     d1.remove();
     d2.remove();
     dSell.remove();
@@ -668,9 +756,17 @@ void draw() {
     cp5.getController("Advanced").remove();
     noLoop();
   }
+
+  // Cerrar ventana Advanced al perder
   if (cure.developed() >= 100 || totalDiseased == 0){
-    size(1440,785);
     image(defeatImg, 0, 0);
+
+    if (advancedWindow != null) {
+      try {
+        advancedWindow.getSurface().setVisible(false);
+      } catch (Exception e) {}
+    }
+
     d1.remove();
     d2.remove();
     dSell.remove();

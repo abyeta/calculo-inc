@@ -256,7 +256,7 @@ class AdvancedMathGraph {
     text("Vol: " + nf(tripleInt, 0, 6), panelX + 10, lineY + 12);
     text("(Densidad 3D)", panelX + 10, lineY + 24);
 
-    // Derivadas Parciales
+    // Derivadas Parciales (línea 258 corregida - se eliminó el = solitario)
     lineY += lineSpacing;
     fill(255, 100, 0);
     textSize(11);
@@ -264,8 +264,12 @@ class AdvancedMathGraph {
     fill(0);
     textSize(10);
     PVector partials = calculatePartialDerivatives();
-    text("∂I/∂t = " + nf(partials.x, 0, 0), panelX + 10, lineY + 12);
-    text("∂D/∂t = " + nf(partials.y, 0, 0), panelX + 10, lineY + 24);
+
+    String dI_str = (abs(partials.x) < 0.01) ? "~0" : nf(partials.x, 0, 2);
+    String dD_str = (abs(partials.y) < 0.01) ? "~0" : nf(partials.y, 0, 2);
+
+    text("∂I/∂t = " + dI_str + "/f", panelX + 10, lineY + 12);
+    text("∂D/∂t = " + dD_str + "/f", panelX + 10, lineY + 24);
 
     // Gradiente
     lineY += lineSpacing;
@@ -275,7 +279,9 @@ class AdvancedMathGraph {
     fill(0);
     textSize(10);
     PVector grad = calculateGradient();
-    text("|∇f| = " + nf(grad.z, 0, 1), panelX + 10, lineY + 12);
+
+    String grad_str = (grad.z < 0.01) ? "~0" : nf(grad.z, 0, 2);
+    text("|∇f| = " + grad_str, panelX + 10, lineY + 12);
     text("(Máximo cambio)", panelX + 10, lineY + 24);
 
     // Límites

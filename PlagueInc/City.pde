@@ -55,9 +55,14 @@ class City {
   void drawAirports() {
     for (int i=0; i<cities.size(); i++) {
       if (cities.get(i).hasAirport) {
+        // Borde negro para los cuadraditos
+        stroke(0);  // Color negro
+        strokeWeight(3);  // Grosor del borde
+        fill(255);  // Fondo blanco
         rect(cities.get(i).x + 40, cities.get(i).y - 25, 20, 20);
       }
     }
+    noStroke();  // Resetear stroke
   }
 
   void drawDocks() {
@@ -83,6 +88,11 @@ class City {
   void updateColor() {
     GB = (population - diseased) / (population * 1.0) * 255;
     R = (population - dead) / (population * 1.0) * 255;
+
+    // Borde negro para el círculo principal
+    stroke(0);
+    strokeWeight(3);
+
     if (diseased + dead == population) {
       if (R > 62) {
         fill((int) R, 0, 0);
@@ -90,7 +100,6 @@ class City {
         fill(62, 0, 0);
       }
     } else if (dead > 0 && diseased == 0) {
-      //calculates correct shading of cities from white to gray
       if (R > 62) {
         fill((int) R, (int)(R - 4.1129), (int)(R - 4.1129));
       } else {
@@ -100,19 +109,22 @@ class City {
       fill((int) R, (int) GB, (int) GB);
     }
     ellipse(x, y, 65, 65);
+
+    // Burbujas internas SIN borde
+    noStroke();
+
     if (GB > 254.9 && (diseased > 0 || dead > 0) && !bubblePopped && (green < 255 || blue < 255) && diseased + dead != population) {
       hasBubble = true;
       fill(255, green, blue);
-      noStroke();
       ellipse(x, y, 30, 30);
-      green++; 
+      green++;
       blue++;
     } else {
       hasBubble = false;
     }
+
     if (bubblePopped && GB > 254.9 && diseased + dead != population) {
       fill(255, 255, 255);
-      noStroke();
       ellipse(x, y, 30, 30);
     }
 
@@ -125,18 +137,13 @@ class City {
       double redIncr;
       double greenIncr;
       double blueIncr;
-      //Determines direction incrementing based on current RGB color.
-      //180 frames is 3 seconds.
-      //How this formula works is red = red - (red - R)/180 then on next frame
-      //it's red = red - (red - R)/179 then on next frame it's
-      //red = red - (red - R)/178 ... until red = red - (red - R)/1
+
       redIncr = (red - R)/RGBbubbleIncr;
       red -= (float)redIncr;
       if (red < 62 && diseased + dead == population && dead > 0) {
         red = 62;
       }
-      //to fix shading issues with sporadic bubbles where it would not turn 
-      //dark red as cities turned dark red
+
       if (diseased + dead == population && dead > 0) {
         greenIncr = green/RGBbubbleIncr;
         blueIncr = blue/RGBbubbleIncr;
@@ -146,7 +153,6 @@ class City {
       }
       green -= (float)greenIncr;
       blue -= (float)blueIncr;
-      noStroke();
       fill(red, green, blue);
       ellipse(x, y, 30, 30);
     }
@@ -271,9 +277,12 @@ class City {
       text(news.get(news.size() - 1), 1220, 220, 150, 100);
     }
     airportOpen = false;
-    fill(255, 0, 0);
+
+    // Cuadradito rojo con borde negro cuando se cierra
     stroke(0);
-    strokeWeight(4);
+    strokeWeight(3);
+    fill(255, 0, 0);
     rect(x + 40, y - 25, 20, 20);
+    noStroke();
   }
 }
