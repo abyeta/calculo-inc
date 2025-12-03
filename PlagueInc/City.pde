@@ -62,7 +62,7 @@ class City {
         rect(cities.get(i).x + 40, cities.get(i).y - 25, 20, 20);
       }
     }
-    noStroke();  // Resetear stroke
+    //noStroke();  // Resetear stroke
   }
 
   void drawDocks() {
