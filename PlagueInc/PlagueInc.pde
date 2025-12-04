@@ -29,6 +29,10 @@ boolean showGraph = false;
 AdvancedWindow advancedWindow;
 boolean showAdvancedWindow = false;
 boolean advancedWindowInitialized = false;
+int lastUpdateTime = 0;  // Tiempo del último update (en millis)
+float accumulatedInfected = 0;  // Acumular infectados en el minuto
+float accumulatedDead = 0;  // Acumular muertos en el minuto
+int updateInterval = 25000;  // 60 segundos en millis
 
 void citySetup() {
   ArrayList<String> adjacent = new ArrayList<String>();
@@ -603,6 +607,7 @@ void setup() {
   cities.get(0).diseased = 1;
 }
 
+
 void draw() {
   totalDead = 0;
   totalDiseased = 0;
@@ -695,6 +700,18 @@ void draw() {
   fill(0, 0, 0);
   percentDead = totalDead * 100.0 / (totalPop);
   text("Dead: " + (int)percentDead + "%", 1220, 200);
+  totalPop = 0;
+for (int i=0; i<cities.size(); i++) {
+  totalPop += cities.get(i).population;
+}
+float infectedPerc = (totalDiseased * 100.0 / totalPop);
+float deadPerc = (totalDead * 100.0 / totalPop);
+// Actualizar gráfico cada 60 segundos
+if (millis() - lastUpdateTime >= updateInterval) {
+  graph.addData(infectedPerc, deadPerc);
+  lastUpdateTime = millis();
+  println("Gráfico actualizado: % Infectados = " + infectedPerc + ", % Muertos = " + deadPerc);
+}
 
   if (totalDead >= 10000 ) {
     if (cure.developed() <= 100) {
@@ -716,13 +733,31 @@ void draw() {
     points+=1;
   }
 
-  graph.addData(totalDiseased, totalDead);
+// Acumular datos en el minuto
+accumulatedInfected += totalDiseased;
+accumulatedDead += totalDead;
+
+// Actualizar gráfico cada 60 segundos
+if (millis() - lastUpdateTime >= updateInterval) {
+  // Promedio o último valor acumulado
+  float avgInfected = accumulatedInfected / (updateInterval / 1000.0);  // Promedio por segundo
+  float avgDead = accumulatedDead / (updateInterval / 1000.0);
+  
+  graph.addData(avgInfected, avgDead);
+  
+  // Resetear acumuladores y tiempo
+  accumulatedInfected = 0;
+  accumulatedDead = 0;
+  lastUpdateTime = millis();
+  
+  println("Gráfico actualizado: Infectados promedio = " + avgInfected + ", Muertos promedio = " + avgDead);
+}
 
   // ✅ SOLUCIÓN FINAL: Gráfico 2D en ventana P3D
   if (showGraph) {
     hint(DISABLE_DEPTH_TEST);  // Desactivar depth buffer 3D
     camera();                   // Resetear cámara a vista 2D ortográfica
-
+    graph.setCureProgress(cure.developed());
     graph.display(50, 100, 600, 400);
 
     hint(ENABLE_DEPTH_TEST);   // Reactivar depth buffer 3D
