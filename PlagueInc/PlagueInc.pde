@@ -32,7 +32,7 @@ boolean advancedWindowInitialized = false;
 int lastUpdateTime = 0;  // Tiempo del último update (en millis)
 float accumulatedInfected = 0;  // Acumular infectados en el minuto
 float accumulatedDead = 0;  // Acumular muertos en el minuto
-int updateInterval = 25000;  // 60 segundos en millis
+int updateInterval = 5000;  // 60 segundos en millis
 
 void citySetup() {
   ArrayList<String> adjacent = new ArrayList<String>();
@@ -694,24 +694,25 @@ void draw() {
   for (int i=0; i<cities.size(); i++) {
     totalPop += cities.get(i).population;
   }
-  text("Infected: " + (totalDiseased * 100 / (totalPop)) + "%", 1220, 170);
+  
+  // Calcular porcentajes
+  float infectedPerc = (totalDiseased * 100.0 / totalPop);
+  percentDead = totalDead * 100.0 / totalPop;
+  
+  // Mostrar estadísticas en la interfaz
+  text("Infected: " + (int)infectedPerc + "%", 1220, 170);
   fill(205);
   rect(1220, 180, 100, 22);
   fill(0, 0, 0);
-  percentDead = totalDead * 100.0 / (totalPop);
   text("Dead: " + (int)percentDead + "%", 1220, 200);
-  totalPop = 0;
-for (int i=0; i<cities.size(); i++) {
-  totalPop += cities.get(i).population;
-}
-float infectedPerc = (totalDiseased * 100.0 / totalPop);
-float deadPerc = (totalDead * 100.0 / totalPop);
-// Actualizar gráfico cada 60 segundos
-if (millis() - lastUpdateTime >= updateInterval) {
-  graph.addData(infectedPerc, deadPerc);
-  lastUpdateTime = millis();
-  println("Gráfico actualizado: % Infectados = " + infectedPerc + ", % Muertos = " + deadPerc);
-}
+
+  // Actualizar gráfico cada 60 segundos
+  if (millis() - lastUpdateTime >= updateInterval) {
+    // Usar los porcentajes calculados
+    graph.addData(infectedPerc, percentDead, cure.developed());
+    lastUpdateTime = millis();
+    println("Gráfico actualizado: Infectados = " + infectedPerc + "%, Muertos = " + percentDead + "%, Cura = " + cure.developed() + "%");
+  }
 
   if (totalDead >= 10000 ) {
     if (cure.developed() <= 100) {
@@ -726,32 +727,13 @@ if (millis() - lastUpdateTime >= updateInterval) {
     fill(0, 0, 0);
     text("Cure: " + (int)cure.developed() + "%", 1220, 140);
   }
+  
   if (Math.random() < (1/180.0)) {
     points += pointRate;
   }
   if (cheatCodeOn) {
     points+=1;
   }
-
-// Acumular datos en el minuto
-accumulatedInfected += totalDiseased;
-accumulatedDead += totalDead;
-
-// Actualizar gráfico cada 60 segundos
-if (millis() - lastUpdateTime >= updateInterval) {
-  // Promedio o último valor acumulado
-  float avgInfected = accumulatedInfected / (updateInterval / 1000.0);  // Promedio por segundo
-  float avgDead = accumulatedDead / (updateInterval / 1000.0);
-  
-  graph.addData(avgInfected, avgDead);
-  
-  // Resetear acumuladores y tiempo
-  accumulatedInfected = 0;
-  accumulatedDead = 0;
-  lastUpdateTime = millis();
-  
-  println("Gráfico actualizado: Infectados promedio = " + avgInfected + ", Muertos promedio = " + avgDead);
-}
 
   // ✅ SOLUCIÓN FINAL: Gráfico 2D en ventana P3D
   if (showGraph) {
