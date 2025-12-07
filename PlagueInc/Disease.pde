@@ -342,7 +342,6 @@ class Disease {
     return arr.contains(mut);
   }
 
-  // arr1 has to be smaller than arr2
   boolean arrIn(ArrayList<String> arr1, ArrayList<Mutation> arr2) {
     if (arr1.size()>arr2.size()) {
       return false;
@@ -486,8 +485,6 @@ class Disease {
         }
       }
 
-      //re-adds mutation into the proper place (below previous tier levels) in the 
-      //accessible mutation ArrayLists
       for (int i = 0; i < accessibleTMutations.size(); i++) {
         accMutName = accessibleTMutations.get(i).name;
         if (accMutName.substring(accMutName.length()-1).compareTo(mut.name.substring(mut.name.length()-1)) >= 0) {
@@ -496,16 +493,10 @@ class Disease {
           return true;
         }
       }
-      //if didn't work, that means mut is a higher tier than any other mutation in the
-      //accessible mutation ArrayLists, and thus cannot be compared with any of them.
-      //the solution is to add mut to the end
       accessibleTMutations.add(mut);
       refreshDropDownList("<Transmission>");
       return true;
     } else if (mut.type.equals("sMutation")) {
-      //checks if the post-reqs of the mutation the player is trying
-      //to sell is in acquired mutations. If so, then don't
-      //allow player to sell the mutation (this is how it works in-game too)
       if (!checkIfCanSell(mut)) {
         return false;
       }
@@ -519,14 +510,13 @@ class Disease {
       mut.bought = false;
       points+= mut.cost();
 
-      //removes post-reqs when selling the mutation
       for (int i = 0; i < accessibleSMutations.size(); i++) {
         accMut = accessibleSMutations.get(i);
         for (int j = 0; j < accMut.prereqs().size(); j++) {
           if (accMut.prereqs().get(j).equals(mut.name)) {
             accessibleSMutations.remove(accMut);
             sMutations.remove(mut);
-            i--; //so that indexing re-calibrates itself after removing an element from list
+            i--;
           }
         }
       }
@@ -549,7 +539,6 @@ class Disease {
   boolean checkIfCanSell(Mutation mut) {
     prereqsThatReachedBase = new ArrayList<Mutation>();
     int numPrereqsBought = 0;
-    //finds out how many prereqs are bought
     for (int i = 0; i < mut.prereqs().size(); i++) {
       Mutation prereq = convertNameToMutation(mut.prereqs().get(i), allSMutations);
       if (!prereq.name.equals(mut.name) && prereq.bought) {
@@ -558,7 +547,6 @@ class Disease {
           prereqsThatReachedBase.add(prereq);
         }
         Mutation prereqOfPrereq = null;
-        //checks if the "tree" of each prereq originated from a base mutation
         for (int k = 0; k < prereq.prereqs().size(); k++) {
           prereqOfPrereq = convertNameToMutation(prereq.prereqs().get(k), allSMutations);
           if (!prereqOfPrereq.name.equals(mut.name) && prereqOfPrereq.bought) {
@@ -575,7 +563,6 @@ class Disease {
     return prereqsThatReachedBase.size() == numPrereqsBought;
   }
 
-  //HIGHLIGHT ALGORITHM
   boolean treeHasBase(Mutation original, Mutation prereqOriginal, Mutation tryToSell, Mutation mut, boolean treeHasBase) {
     if (prereqsThatReachedBase.contains(prereqOriginal)) {
       return false;
@@ -605,8 +592,6 @@ class Disease {
     return null;
   }
 
-  //arr2 is bigger than arr1
-  //output is an ArrayList of mutations that are not present in arr1 but present in arr2 AND are bought
   ArrayList<Mutation> leftoverMutations(ArrayList<Mutation> arr1, ArrayList<String> arr2) {
     if (arr2.size() < arr1.size()) {
       return null;
