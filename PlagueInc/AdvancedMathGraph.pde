@@ -135,18 +135,15 @@ class AdvancedMathGraph {
   void display(int x, int y, int w, int h) {
     int totalPop = 10000000;
 
-    // FONDO
     fill(245, 248, 250);
     noStroke();
     rect(x, y, w, h);
 
-    // BORDE
     stroke(100);
     strokeWeight(2);
     noFill();
     rect(x, y, w, h);
 
-    // TÍTULO
     fill(0);
     textAlign(CENTER);
     textSize(18);
@@ -256,7 +253,7 @@ class AdvancedMathGraph {
     text("Vol: " + nf(tripleInt, 0, 6), panelX + 10, lineY + 12);
     text("(Densidad 3D)", panelX + 10, lineY + 24);
 
-    // Derivadas Parciales (línea 258 corregida - se eliminó el = solitario)
+    // Derivadas Parciales
     lineY += lineSpacing;
     fill(255, 100, 0);
     textSize(11);

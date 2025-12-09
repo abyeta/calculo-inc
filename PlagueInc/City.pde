@@ -37,7 +37,6 @@ class City {
     red = 255;
     drawRoutes();
     drawAirports();
-    //drawDocks();
   }
 
   void drawRoutes() {
@@ -55,14 +54,13 @@ class City {
   void drawAirports() {
     for (int i=0; i<cities.size(); i++) {
       if (cities.get(i).hasAirport) {
-        // Borde negro para los cuadraditos
-        stroke(0);  // Color negro
-        strokeWeight(3);  // Grosor del borde
-        fill(255);  // Fondo blanco
+        stroke(0);
+        strokeWeight(3);
+        fill(255);
         rect(cities.get(i).x + 40, cities.get(i).y - 25, 20, 20);
       }
     }
-    //noStroke();  // Resetear stroke
+    //noStroke();
   }
 
   void drawDocks() {
@@ -89,7 +87,6 @@ class City {
     GB = (population - diseased) / (population * 1.0) * 255;
     R = (population - dead) / (population * 1.0) * 255;
 
-    // Borde negro para el círculo principal
     stroke(0);
     strokeWeight(3);
 
@@ -110,7 +107,6 @@ class City {
     }
     ellipse(x, y, 65, 65);
 
-    // Burbujas internas SIN borde
     noStroke();
 
     if (GB > 254.9 && (diseased > 0 || dead > 0) && !bubblePopped && (green < 255 || blue < 255) && diseased + dead != population) {

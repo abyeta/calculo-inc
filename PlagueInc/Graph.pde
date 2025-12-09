@@ -18,8 +18,7 @@ class Graph {
     infectedHistory.add(infected);
     deadHistory.add(dead);
     cureHistory.add(cure);
-    
-    // Calcular integral acumulada de la INFECCIÓN (área bajo la curva)
+
     float currentIntegral = calculateIntegral(infectedHistory);
     integralHistory.add(currentIntegral);
 
@@ -72,20 +71,15 @@ class Graph {
     fill(255, 100, 100, 120);  // Rojo semitransparente
     noStroke();
     beginShape();
-    
-    // Empezar en esquina inferior izquierda
+
     vertex(x, y + h);
-    
-    // Dibujar el área bajo la curva de INFECCIÓN
+
     if (infectedHistory.size() > 0 && integralHistory.size() > 0) {
-      // Normalizar la integral para que se ajuste al gráfico
-      // Encontrar el valor máximo de la integral para escalar
       float maxIntegral = 0;
       for (Float val : integralHistory) {
         if (val > maxIntegral) maxIntegral = val;
       }
-      
-      // Si no hay datos aún, evitar división por cero
+
       if (maxIntegral == 0) maxIntegral = 1;
       
       // Dibujar el área (integral normalizada de INFECCIÓN)
@@ -96,17 +90,14 @@ class Graph {
         float py = map(normalizedValue, 0, 1, y + h, y);
         vertex(px, py);
       }
-      
-      // Cerrar el área en la esquina inferior derecha
+
       float lastX = map(min(integralHistory.size(), maxPoints) - 1, 0, maxPoints, x, x + w);
       vertex(lastX, y + h);
     }
-    
-    // Volver al punto de inicio
+
     vertex(x, y + h);
     endShape(CLOSE);
 
-    // Línea de infección - naranja (porcentaje ACTUAL de infección)
     stroke(255, 100, 0);
     strokeWeight(2);
     noFill();
@@ -118,7 +109,6 @@ class Graph {
     }
     endShape();
 
-    // Línea de cura - azul (avance en porcentaje)
     stroke(0, 150, 255);
     strokeWeight(2);
     noFill();
@@ -130,7 +120,6 @@ class Graph {
     }
     endShape();
 
-    // Línea de muertes - negra
     stroke(0, 0, 0);
     strokeWeight(3);
     noFill();
@@ -142,7 +131,6 @@ class Graph {
     }
     endShape();
 
-    // Mostrar valor actual de la integral (área acumulada de INFECCIÓN)
     if (integralHistory.size() > 0) {
       float currentIntegral = integralHistory.get(integralHistory.size() - 1);
       textSize(10);
@@ -151,7 +139,6 @@ class Graph {
       text("∫infección dt: " + nf(currentIntegral, 0, 1), x + w - 10, y + 20);
     }
 
-    // Etiquetas explicativas
     textSize(12);
     textAlign(LEFT);
     fill(0, 0, 0);
@@ -160,8 +147,7 @@ class Graph {
     text("Azul: cura (% actual)", x + 20, y + 70);
     textSize(10);
     text("Fondo rojo: ∫infección dt (área bajo curva)", x + 20, y + 90);
-    
-    // Explicación matemática (para el proyecto)
+
     textSize(9);
     text("Área = ∑[(infecciónᵢ + infecciónᵢ₊₁)/2 × Δt]", x + 20, y + 110);
   }
