@@ -52,3 +52,8 @@ Alternativa:
 * En el IDE seleccionar la opción de ejecutar arriba a la izquierda
 * Para cerrar presionar 'Detener' que está al lado del anterior
 
+---
+
+Este código fue tomado de un repositorio externo (se perdió el link) y se adaptó para cumplir con el proyecto de cálculo. 
+La lógica de funcionamiento no es de mi autoría; los gráficos, análisis e implementaciones 3D corresponden a mi contribución del proyecto.
+
